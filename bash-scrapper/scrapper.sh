@@ -31,18 +31,18 @@ for tid in $teacher_ids; do
 	# rozbicie strony na bloki, które zawierają tylko jakieś przedmioty
     blocks=$(echo "$page" | tr '\n' ' ' | sed 's/<\/div>/<\/div>\n/g' | grep '<div id="course_')
 
-	# wyciągamy z bloków nazwę przedmiotu i zapisujemy razem z nazwą nauczyciela do pliku temp
+	# wyciągamy z bloków nazwę przedmiotu oraz kierunek i zapisujemy razem z nazwą nauczyciela do pliku temp
     echo "$blocks" | while IFS= read -r block; do
-         course_info=$(echo "$block" | sed -n 's/.*<img[^>]*>\([^<]*\)<br.*/\1/p')
-
+         course_info=$(echo "$block" | sed -n 's/.*<img[^>]*>\([^<]*\)<br.*/\1/p' | sed 's/[[:space:]]//g')
+		 major=$(echo "$block" | sed -n 's/.*<a href[^>]*>\([^/<]*\)\/.*/\1/p')
          if [ -n "$course_info" ]; then
-             echo "$course_info,$teacher_name" >> "$TEMP_FILE"
+             echo "$major,$course_info,$teacher_name" >> "$TEMP_FILE"
          fi
     done
 done
 
 # usuwanie duplikatów
-echo "Subject,Teacher" > "$OUTPUT_FILE"
+echo "Major,Subject,Type,Teacher" > "$OUTPUT_FILE"
 sort -u "$TEMP_FILE" >> "$OUTPUT_FILE"
 rm "$TEMP_FILE"
 
