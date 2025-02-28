@@ -35,7 +35,7 @@ for tid in $teacher_ids; do
     echo "$blocks" | while IFS= read -r block; do
          course_info=$(echo "$block" | sed -n 's/.*<img[^>]*>\([^<]*\)<br.*/\1/p' | sed 's/[[:space:]]//g')
 		 major=$(echo "$block" | sed -n 's/.*<a href[^>]*>\([^/<]*\)\/.*/\1/p')
-         if [ -n "$course_info" ]; then
+         if [ -n "$course_info" ] && [ -n "$major" ]; then
              echo "$major,$course_info,$teacher_name" >> "$TEMP_FILE"
          fi
     done
