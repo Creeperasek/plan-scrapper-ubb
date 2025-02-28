@@ -33,8 +33,7 @@ for tid in $teacher_ids; do
 
 	# wyciągamy z bloków nazwę przedmiotu i zapisujemy razem z nazwą nauczyciela do pliku temp
     echo "$blocks" | while IFS= read -r block; do
-         course_info=$(echo "$block" | sed -n 's/.*<img[^>]*>\([^<]*\)<br.*/\1/p' \
-         | sed 's/[[:space:]]\+/ /g; s/^[[:space:]]*//; s/[[:space:]]*$//')
+         course_info=$(echo "$block" | sed -n 's/.*<img[^>]*>\([^<]*\)<br.*/\1/p')
 
          if [ -n "$course_info" ]; then
              echo "$course_info,$teacher_name" >> "$TEMP_FILE"
