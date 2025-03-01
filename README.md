@@ -20,8 +20,6 @@ Dane ze scrapera są zapisywane w /data/dane.csv
 
 Jak robicie zmiany w aplikacji to wystarczy zbudować sam kontener webservices i zrobić restart w następujący sposób:
 
-docker build -t webservices:[wersja] ./webservices
 docker-compose up --build webservices
-
 
 Możecie podpatrzeć zawartość /data/dane.csv w zakładce "Volumes" na Docker Desktop
