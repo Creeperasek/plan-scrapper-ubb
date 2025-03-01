@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Przy okazji researchu zrobiłem prosty skrypt bash,
-# który scrapuje wszystkich pracowników katedry informatycznej,
+# który scrapuje wszystkich pracowników WBMiI,
 # przyda się do zapoznania ze strukturą strony
 
 OUTPUT_FILE="dane.csv"
