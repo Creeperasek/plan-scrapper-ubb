@@ -1,0 +1,10 @@
+FROM alpine:3.21.3
+
+RUN apk update && \
+    apk add --no-cache curl grep sed coreutils bash
+
+VOLUME ["/data"]
+
+COPY scraper.sh /scraper.sh
+RUN chmod +x /scraper.sh
+CMD ["/bin/bash", "/scraper.sh"]
