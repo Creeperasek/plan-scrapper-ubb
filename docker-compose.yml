@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  scraper:
+    build: ./scraper
+    restart: always
+    volumes:
+      - data_volume:/data
+
+  webservices:
+    build: ./webservices
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - data_volume:/data
+    environment:
+      - HOST=0.0.0.0
+      - PORT=3000
+
+volumes:
+  data_volume:

@@ -1,36 +1,27 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Uruchamianie kontenerów docker
 
-## Getting Started
+Wymagania:
+Docker
 
-First, run the development server:
+Aby zbudować i uruchomić wszystkie kontenery wpisujemy z głównego folderu:
+docker-compose up --build
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Strona powinna być dostępna na http://localhost:3000/
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Aby je wyłączyć:
+docker-compose down
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Nie będę rozpisywał wszystkich dockerowych poleceń, możecie wszystko podpatrzeć z Docker Desktop
 
-## Learn More
+Dane ze scrapera są zapisywane w /data/dane.csv
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Jak robicie zmiany w aplikacji to wystarczy zbudować sam kontener webservices i zrobić restart w następujący sposób:
 
-## Deploy on Vercel
+docker build -t webservices:[wersja] ./webservices
+docker-compose up --build webservices
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Możecie podpatrzeć zawartość /data/dane.csv w zakładce "Volumes" na Docker Desktop
