@@ -13,18 +13,23 @@ while true; do
 	SAVED_DATE=$(cat "$LAST_UPDATE")
 	CURRENT_LAST_UPDATE=$(curl -s https://plany.ubb.edu.pl/right_menu.php# -H 'User-Agent: Mozilla/5.0' --compressed | sed -n 's/.*Aktualizacja bazy: \([0-9\-]\+ [0-9:]\+\).*/\1/p')
 
-    if [[ -z "$CURRENT_LAST_UPDATE" ]]; then
-        echo "$(date) - Błąd: Nie udało się pobrać daty aktualizacji."
-        sleep $COOLDOWN
-        continue
-    fi
+	if [ -f "$OUTPUT_FILE" ]; then
 
-	if [[ "$SAVED_DATE" == "$CURRENT_LAST_UPDATE" ]]; then
-		echo "Ostatnia aktualiacja bez zmian"
-		sleep $COOLDOWN
-		continue
+		if [[ -z "$CURRENT_LAST_UPDATE" ]]; then
+			echo "Błąd: Nie udało się pobrać daty aktualizacji."
+			sleep $COOLDOWN
+			continue
+		fi
+
+		if [[ "$SAVED_DATE" == "$CURRENT_LAST_UPDATE" ]]; then
+			echo "Ostatnia aktualiacja bez zmian"
+			sleep $COOLDOWN
+			continue
+		fi
+		echo "Ostatnia aktualizacja została zmieniona. Pobieram dane..."
+	else
+		echo "Brak pliku $OUTPUT_FILE. Pobieram dane..."
 	fi
-	echo "$CURRENT_LAST_UPDATE" > "$LAST_UPDATE"
 
 	TEMP_FILE=$(mktemp)
 	trap 'rm -f "$TEMP_FILE"' EXIT
@@ -54,15 +59,24 @@ while true; do
 			# pobiera nazwę nauczyciela dla danego ID
 			teacher_name=$(echo "$page" | sed -n 's/.*Plan zajęć - \(.*\), tydzień.*/\1/p')
 
+			# wyciągnięcie legendy
+			legend=$(echo "$page" | tr '\n' ' ' | sed -n 's/.*\(<div class="data">.*<img src="images\/resize\.png".*<\/div>\).*/\1/p')
+
 			# rozbicie strony na bloki, które zawierają tylko jakieś przedmioty
 			blocks=$(echo "$page" | tr '\n' ' ' | sed 's/<\/div>/<\/div>\n/g' | grep '<div id="course_')
 
 			# wyciągamy z bloków nazwę przedmiotu oraz kierunek i zapisujemy razem z nazwą nauczyciela do pliku temp
 			echo "$blocks" | while IFS= read -r block; do
 				course_info=$(echo "$block" | sed -n 's/.*<img[^>]*>\([^<]*\)<br.*/\1/p' | sed 's/[[:space:]]//g')
+				course_code=$(echo "$course_info" | cut -d',' -f1)
+				course_type=$(echo "$course_info" | cut -d',' -f2)
+
 				major=$(echo "$block" | sed -n 's/.*<a href[^>]*>\([^/<]*\)\/.*/\1/p')
 				if [ -n "$course_info" ] && [ -n "$major" ]; then
-					echo "$major,$course_info,$teacher_name" >> "$TEMP_FILE"
+					course_name=$(echo "$legend" | sed -n "s|.*<strong>${course_code}</strong>[[:space:]]*-[[:space:]]*\([^,<]*\)[,<].*|\1|p")
+					course_name="${course_name:-$course_code}"
+					
+					echo "$major,$course_name,$course_type,$teacher_name" >> "$TEMP_FILE"
 				fi
 			done
 		done
@@ -76,7 +90,7 @@ while true; do
 	COUNT=$(($(wc -l < "$OUTPUT_FILE") - 1))
 
 	echo "Dane zapisane do $OUTPUT_FILE. Liczba znalezionych rekordów: $COUNT."
-
+	echo "$CURRENT_LAST_UPDATE" > "$LAST_UPDATE"
 	sleep $COOLDOWN
 
 done
