@@ -1,5 +1,5 @@
 import {readCSV} from "@/api/csvReader";
-import DemoPlan from "@/components/demo"
+import MajorSubjectFilter from "@/components/MajorSubjectFilter"
 
 
 export default async function Home() {
@@ -9,10 +9,9 @@ export default async function Home() {
   if (planData.length == 0) {
     console.log("something went wrong with reading the CSV file")
   }
-
   return (
     <>
-      <DemoPlan planData={planData}/>
+      <MajorSubjectFilter planData={planData} />
     </>
   );
 }
