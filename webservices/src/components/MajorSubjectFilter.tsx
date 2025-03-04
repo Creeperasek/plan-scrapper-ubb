@@ -12,29 +12,44 @@ export default function MajorSubjectFilter() {
     const searchParams = useSearchParams();
     const { replace } = useRouter();
     const [planData, setPlanData] = useState<PlanData[]>([]);
+    const [majors, setMajors] = useState<string[]>([]);
+    const [subjects, setSubjects] = useState<string[]>([]);
     
     const selectedMajor = searchParams.get("major") || "";
     const selectedSubject = searchParams.get("subject") || "";
 
     useEffect(() => {
-        fetch(`/api/read-csv?major=${selectedMajor}&subject=${selectedSubject}`)
-          .then((res) => res.json())
-          .then(setPlanData);
+        if (selectedMajor && selectedSubject){
+            fetch(`/api/syllabus?major=${selectedMajor}&subject=${selectedSubject}`)
+            .then((res) => res.json())
+            .then(setPlanData);
+        }else{
+            setPlanData([]);
+        }
+
     }, [selectedMajor, selectedSubject]);
+
+    useEffect(() => {
+        fetch('/api/major')
+            .then((res) => res.json())
+            .then(setMajors);
+    }, []);
+
+    useEffect(() => {
+        if (selectedMajor) {
+            fetch(`/api/subject-from-major?major=${selectedMajor}`)
+                .then((res) => res.json())
+                .then(setSubjects);
+        }else{
+            setSubjects([]);
+        }
+    }, [selectedMajor]);
 
     const updateParams = (key: string, value: string) => {
         const params = new URLSearchParams(searchParams);
         value ? params.set(key, value) : params.delete(key);
         replace(`?${params.toString()}`);
     };
-
-    const majors: string[] = useMemo(() => {
-        return [...new Set(planData?.map((x : PlanData) => String(x.Major)) ?? [])];
-    }, [planData]);
-
-    const subjects: string[] = useMemo(() => {
-        return selectedMajor ? [...new Set(planData?.filter((x : PlanData) => x.Major === selectedMajor).map((x : PlanData) => String(x.Subject)) ?? [])] : [];
-    }, [selectedMajor, planData]);
     
     return (
         <div>
