@@ -16,7 +16,7 @@ Plan-scrapper-ubb is a simple project that displays teachers for selected subjec
 
 ### Installation
 
-#### Using Docker
+#### Using Docker Compose
 
 1. Build and run the project:
    ```bash
@@ -28,9 +28,13 @@ Plan-scrapper-ubb is a simple project that displays teachers for selected subjec
    docker-compose down
    ```
 
-3. To start a specific service:
+3. To build a specific service:
    ```bash
    docker-compose up --build <service-name>
+   ```
+4. To start a specific service (without building):
+   ```bash
+   docker-compose up --no-build <service-name>
    ```
    Where `<service-name>` can be either `webservices` (Website service) or `scrapper` (Data retrieval tool)
 
