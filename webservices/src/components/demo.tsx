@@ -1,24 +1,78 @@
-"use client"
+'use client';
 
-import {PlanData} from "@/typings"
+import { useState, useEffect } from 'react';
+import { PlanData } from '@/typings';
 
-interface PlanDataProps {
-    planData: PlanData[]
-}
+export default function DataSelector() {
+    const [data, setData] = useState<PlanData[]>([]);
+    const [majors, setMajors] = useState<string[]>([]);
+    const [subjects, setSubjects] = useState<string[]>([]);
+    const [selectedMajor, setSelectedMajor] = useState<string>('');
+    const [selectedSubject, setSelectedSubject] = useState<string>('');
 
-export default function DemoPlan({planData}: PlanDataProps) {
+    useEffect(() => {
+        fetchAllData();
+    }, []);
+
+    const fetchAllData = async () => {
+        try {
+            const response = await fetch('http://localhost:3000/api/read-csv');
+            const result = await response.json();
+
+            if (result.simplifiedData && Array.isArray(result.simplifiedData)) {
+                // Uproszczony format
+                const simplifiedData = result.simplifiedData;
+                setMajors([...new Set(simplifiedData.map((item: {Major: string}) => item.Major) as string)]);
+                setSubjects([...new Set(simplifiedData.map((item: {Subject: string}) => item.Subject) as string)]);
+            } else if (Array.isArray(result)) {
+                // Pełny format
+                setMajors([...new Set(result.map((item: PlanData) => item.Major))]);
+                setSubjects([...new Set(result.map((item: PlanData) => item.Subject))]);
+            } else {
+                console.error('Unexpected data format:', result);
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+    const fetchFilteredData = async () => {
+        const response = await fetch(`/api/read-csv?major=${selectedMajor}&subject=${selectedSubject}`);
+        const filteredData = await response.json();
+        setData(filteredData);
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        fetchFilteredData();
+    };
+
     return (
-        <table>
-            <tbody>
-                {planData.map((item, index) => (
-                    <tr key={index}>
-                        <td>{item.Major}</td>
-                        <td>{item.Subject}</td>
-                        <td>{item.Type}</td>
-                        <td>{item.Teacher}</td>
-                    </tr>
+        <div>
+            <form onSubmit={handleSubmit}>
+                <select value={selectedMajor} onChange={(e) => setSelectedMajor(e.target.value)}>
+                    <option value="">Wybierz kierunek</option>
+                    {majors.map((major) => (
+                        <option key={major} value={major}>{major}</option>
+                    ))}
+                </select>
+                <select value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)}>
+                    <option value="">Wybierz przedmiot</option>
+                    {subjects.map((subject) => (
+                        <option key={subject} value={subject}>{subject}</option>
+                    ))}
+                </select>
+                <button type="submit">Pokaż szczegóły</button>
+            </form>
+            <ul>
+                {data.map((item, index) => (
+                    <li key={index}>
+                        Kierunek: {item.Major}, Przedmiot: {item.Subject}
+                        {item.Type && `, Typ: ${item.Type}`}
+                        {item.Teacher && `, Nauczyciel: ${item.Teacher}`}
+                    </li>
                 ))}
-            </tbody>
-        </table>
-    )
+            </ul>
+        </div>
+    );
 }
