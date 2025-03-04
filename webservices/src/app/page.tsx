@@ -1,11 +1,11 @@
-import DataSelector from "@/components/demo"
+
+import MajorSubjectFilter from "@/components/MajorSubjectFilter"
 
 
 export default async function Home() {
-
   return (
     <>
-      <DataSelector/>
+      <MajorSubjectFilter />
     </>
   );
 }

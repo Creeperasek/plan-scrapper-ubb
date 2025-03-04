@@ -1,44 +1,63 @@
 "use client"
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import {PlanData} from "@/typings"
 import MajorSelect from "./MajorSelect";
 import SubjectSelect from "./SubjectSelect";
 import TeacherList from "./TeacherList";
 
-interface PlanDataProps {
-    planData: PlanData[]
-}
 
-export default function MajorSubjectFilter({ planData }: PlanDataProps) {
-    const [selectedMajor, setSelectedMajor] = useState<string>("");
-    const [selectedSubject, setSelectedSubject] = useState<string>("");
+export default function MajorSubjectFilter() {
+    const searchParams = useSearchParams();
+    const { replace } = useRouter();
+    const [planData, setPlanData] = useState<PlanData[]>([]);
+    const [majors, setMajors] = useState<string[]>([]);
+    const [subjects, setSubjects] = useState<string[]>([]);
+    
+    const selectedMajor = searchParams.get("major") || "";
+    const selectedSubject = searchParams.get("subject") || "";
 
-    const majors = [...new Set(planData.map((x) => x.Major))];
-
-    const subjects = selectedMajor ? [...new Set(planData.filter((x) => x.Major == selectedMajor).map((x) => x.Subject))] : [];
-
-    const filteredPlanData = [...new Set(planData.filter((x) => x.Major == selectedMajor && x.Subject == selectedSubject).sort((a, b) => b.Type.localeCompare(a.Type)))];
-
-    const uniqueTeachers = new Map();
-
-    filteredPlanData.forEach((entry) => {
-        if (!uniqueTeachers.has(entry.Teacher)) {
-          uniqueTeachers.set(entry.Teacher, entry);
-        } else if (entry.Type === 'wyk') {
-          uniqueTeachers.set(entry.Teacher, entry);
+    useEffect(() => {
+        if (selectedMajor && selectedSubject){
+            fetch(`/api/syllabus?major=${selectedMajor}&subject=${selectedSubject}`)
+            .then((res) => res.json())
+            .then(setPlanData);
+        }else{
+            setPlanData([]);
         }
-      });
-      
-      const PlanDataDuplicates = Array.from(uniqueTeachers.values());
 
+    }, [selectedMajor, selectedSubject]);
+
+    useEffect(() => {
+        fetch('/api/major')
+            .then((res) => res.json())
+            .then(setMajors);
+    }, []);
+
+    useEffect(() => {
+        if (selectedMajor) {
+            fetch(`/api/subject-from-major?major=${selectedMajor}`)
+                .then((res) => res.json())
+                .then(setSubjects);
+        }else{
+            setSubjects([]);
+        }
+    }, [selectedMajor]);
+
+    const updateParams = (key: string, value: string) => {
+        const params = new URLSearchParams(searchParams);
+        value ? params.set(key, value) : params.delete(key);
+        replace(`?${params.toString()}`);
+    };
+    
     return (
         <div>
             <h2>Wydział: </h2>
-            <MajorSelect majors={majors} selectedMajor={selectedMajor} onChange={setSelectedMajor} /> <br/>
+            <MajorSelect majors={majors} selectedMajor={selectedMajor} onChange={(x) => updateParams("major", x)} /> <br/>
             <h2>Przedmiot: </h2>
-            <SubjectSelect selectedSubject={selectedSubject} subjects={subjects} onChange={setSelectedSubject}/>
-            <TeacherList teachers={PlanDataDuplicates} />
+            <SubjectSelect selectedSubject={selectedSubject} subjects={subjects} onChange={(x) => updateParams("subject", x)}/>
+            <TeacherList teachers={planData} />
             <div className = "legend">
                 <div className = "LegendBox"></div>
                 <span>Prowadzący przedmiot</span>
