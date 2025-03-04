@@ -15,10 +15,25 @@ export default function DataSelector() {
     }, []);
 
     const fetchAllData = async () => {
-        const response = await fetch('http://localhost:3000/api/read-csv');
-        const allData = await response.json();
-        setMajors([...new Set(allData.map((item: PlanData) => item.Major))] as string[]);
-        setSubjects([...new Set(allData.map((item: PlanData) => item.Subject))] as string[]);
+        try {
+            const response = await fetch('http://localhost:3000/api/read-csv');
+            const result = await response.json();
+
+            if (result.simplifiedData && Array.isArray(result.simplifiedData)) {
+                // Uproszczony format
+                const simplifiedData = result.simplifiedData;
+                setMajors([...new Set(simplifiedData.map((item: {Major: string}) => item.Major) as string)]);
+                setSubjects([...new Set(simplifiedData.map((item: {Subject: string}) => item.Subject) as string)]);
+            } else if (Array.isArray(result)) {
+                // Pełny format
+                setMajors([...new Set(result.map((item: PlanData) => item.Major))]);
+                setSubjects([...new Set(result.map((item: PlanData) => item.Subject))]);
+            } else {
+                console.error('Unexpected data format:', result);
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
     };
 
     const fetchFilteredData = async () => {
@@ -52,7 +67,9 @@ export default function DataSelector() {
             <ul>
                 {data.map((item, index) => (
                     <li key={index}>
-                        Kierunek: {item.Major}, Przedmiot: {item.Subject}, Typ: {item.Type}, Nauczyciel: {item.Teacher}
+                        Kierunek: {item.Major}, Przedmiot: {item.Subject}
+                        {item.Type && `, Typ: ${item.Type}`}
+                        {item.Teacher && `, Nauczyciel: ${item.Teacher}`}
                     </li>
                 ))}
             </ul>
