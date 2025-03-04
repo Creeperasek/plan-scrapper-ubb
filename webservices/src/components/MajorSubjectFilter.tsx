@@ -18,7 +18,19 @@ export default function MajorSubjectFilter({ planData }: PlanDataProps) {
 
     const subjects = selectedMajor ? [...new Set(planData.filter((x) => x.Major == selectedMajor).map((x) => x.Subject))] : [];
 
-    const filteredPlanData = [...new Set(planData.filter((x) => x.Major == selectedMajor && x.Subject == selectedSubject))];
+    const filteredPlanData = [...new Set(planData.filter((x) => x.Major == selectedMajor && x.Subject == selectedSubject).sort((a, b) => b.Type.localeCompare(a.Type)))];
+
+    const uniqueTeachers = new Map();
+
+    filteredPlanData.forEach((entry) => {
+        if (!uniqueTeachers.has(entry.Teacher)) {
+          uniqueTeachers.set(entry.Teacher, entry);
+        } else if (entry.Type === 'wyk') {
+          uniqueTeachers.set(entry.Teacher, entry);
+        }
+      });
+      
+      const PlanDataDuplicates = Array.from(uniqueTeachers.values());
 
     return (
         <div>
@@ -26,7 +38,7 @@ export default function MajorSubjectFilter({ planData }: PlanDataProps) {
             <MajorSelect majors={majors} selectedMajor={selectedMajor} onChange={setSelectedMajor} /> <br/>
             <h2>Przedmiot: </h2>
             <SubjectSelect selectedSubject={selectedSubject} subjects={subjects} onChange={setSelectedSubject}/>
-            <TeacherList teachers={filteredPlanData} />
+            <TeacherList teachers={PlanDataDuplicates} />
             <div className = "legend">
                 <div className = "LegendBox"></div>
                 <span>Prowadzący przedmiot</span>
