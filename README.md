@@ -34,7 +34,7 @@ Plan-scrapper-ubb is a simple project that displays teachers for selected subjec
    ```
    Where `<service-name>` can be either `webservices` (Website service) or `scrapper` (Data retrieval tool)
 
-> [!NOTE:] You can view the data in `/data/dane.csv` under the "Volumes" tab in Docker Desktop.
+> [!NOTE] You can view the data in `/data/dane.csv` under the "Volumes" tab in Docker Desktop.
 
 #### Local Development
 
@@ -53,7 +53,7 @@ Plan-scrapper-ubb is a simple project that displays teachers for selected subjec
    ./scrapper.sh
    ```
 
-> [!WARNING:] Ensure you're in the correct directory when running these commands.
+> [!WARNING] Ensure you're in the correct directory when running these commands.
 
 ## API Endpoints
 
