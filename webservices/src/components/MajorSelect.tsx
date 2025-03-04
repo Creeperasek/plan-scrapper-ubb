@@ -2,11 +2,11 @@
 
 interface MajorSelect{
     selectedMajor: string;
-    major: string; 
+    majors: string[]; 
     onChange: (major: string) => void;
 }
 
-export default function MajorSelect({selectedMajor, majors, onChange}){
+export default function MajorSelect({selectedMajor, majors, onChange}: MajorSelect){
     return (
         <select value={selectedMajor} onChange={(e) => onChange(e.target.value)}>
             <option value="">Wybierz wydział</option>
