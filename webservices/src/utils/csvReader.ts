@@ -10,7 +10,7 @@ export async function readCSV(filepath: string): Promise<PlanData[]>{
 
         fs.createReadStream(filepath)
            .pipe(csv())
-           .on('data', (row: any) => data.push(row))
+           .on('data', (row) => data.push(row))
            .on('end', () => resolve(data))
            .on('error', (err: Error) => reject(err));
     });
