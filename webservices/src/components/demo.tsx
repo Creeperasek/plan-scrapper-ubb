@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { PlanData } from '@/typings';
+import {useState, useEffect} from 'react';
+import {PlanData} from '@/typings';
 
 export default function DataSelector() {
     const [data, setData] = useState<PlanData[]>([]);
@@ -16,16 +16,10 @@ export default function DataSelector() {
 
     const fetchAllData = async () => {
         try {
-            const response = await fetch('http://localhost:3000/api/read-csv');
+            const response = await fetch('http://localhost:3000/api/syllabus');
             const result = await response.json();
 
-            if (result.simplifiedData && Array.isArray(result.simplifiedData)) {
-                // Uproszczony format
-                const simplifiedData = result.simplifiedData;
-                setMajors([...new Set(simplifiedData.map((item: {Major: string}) => item.Major) as string)]);
-                setSubjects([...new Set(simplifiedData.map((item: {Subject: string}) => item.Subject) as string)]);
-            } else if (Array.isArray(result)) {
-                // Pełny format
+            if (Array.isArray(result)) {
                 setMajors([...new Set(result.map((item: PlanData) => item.Major))]);
                 setSubjects([...new Set(result.map((item: PlanData) => item.Subject))]);
             } else {
@@ -37,7 +31,7 @@ export default function DataSelector() {
     };
 
     const fetchFilteredData = async () => {
-        const response = await fetch(`/api/read-csv?major=${selectedMajor}&subject=${selectedSubject}`);
+        const response = await fetch(`/api/syllabus?major=${selectedMajor}&subject=${selectedSubject}`);
         const filteredData = await response.json();
         setData(filteredData);
     };
