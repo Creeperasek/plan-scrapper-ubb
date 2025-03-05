@@ -6,7 +6,7 @@
 OUTPUT_FILE="/data/dane.csv"
 LAST_UPDATE="/data/last_update.txt"
 COOLDOWN=3600
-START_DATE="2011-08-11"
+START_DATE="2011-08-22"
 
 while true; do
 
@@ -65,7 +65,6 @@ while true; do
                         page=$(curl -s "$PLAN_URL" -H 'User-Agent: Mozilla/5.0' --compressed)
                         sec_page=$(curl -s "$SEC_PLAN_URL" -H 'User-Agent: Mozilla/5.0' --compressed)
 
-
                         # pobiera nazwę nauczyciela dla danego ID
                         teacher_name=$(echo "$page" | sed -n 's/.*Plan zajęć - \(.*\), tydzień.*/\1/p')
 
@@ -74,7 +73,7 @@ while true; do
 
                         # rozbicie strony na bloki, które zawierają tylko jakieś przedmioty
                         blocks=$(echo "$page" | tr '\n' ' ' | sed 's/<\/div>/<\/div>\n/g' | grep '<div id="course_')
-                        blocks+=$'\n'$(echo "$sec_page" | tr '\n' ' ' | sed 's/<\/div>/<\/div>\n/g' | grep '<div id="course_')
+                        blocks+=$'\n'"$(echo "$sec_page" | tr '\n' ' ' | sed 's/<\/div>/<\/div>\n/g' | grep '<div id="course_')"
 
                         # wyciągamy z bloków nazwę przedmiotu oraz kierunek i zapisujemy razem z nazwą nauczyciela do pliku temp
                         echo "$blocks" | while IFS= read -r block; do
@@ -91,17 +90,15 @@ while true; do
                                     else
                                       major="$major S"
                                   fi
-
-                                  echo "$block"
-                                  echo "$major"
                                 fi
 
-
+                                
 
                                 if [ -n "$course_info" ] && [ -n "$major" ]; then
                                         course_name=$(echo "$legend" | perl -lne "my \$code = quotemeta(\"$course_code\"); print \$1 if /<strong>\$code<\/strong>\\s*-\\s*(.+?)(?:,|<)/")
                                         course_name="${course_name:-$course_code}"
-
+                                        
+                                        #echo "$major,$course_name,$course_type,$teacher_name"
                                         echo "$major,$course_name,$course_type,$teacher_name" >> "$TEMP_FILE"
                                 fi
                         done
