@@ -6,6 +6,7 @@
 OUTPUT_FILE="/data/dane.csv"
 LAST_UPDATE="/data/last_update.txt"
 COOLDOWN=3600
+START_DATE="2011-08-11"
 
 while true; do
 
@@ -34,6 +35,13 @@ while true; do
         TEMP_FILE=$(mktemp)
         trap 'rm -f "$TEMP_FILE"' EXIT
 
+        CURRENT_DATE=$(date +%s)
+        START_DATE_SEC=$(date -d "$START_DATE" +%s)
+        DIFF_IN_SEC=$((CURRENT_DATE - START_DATE_SEC))
+        WEEK=$((DIFF_IN_SEC / 604800))
+        ((WEEK++))
+        echo "$WEEK"
+
         # ID WBMiI, pobiera listę ID katedr
         BRANCH_LIST="https://plany.ubb.edu.pl/left_menu_feed.php?type=2&branch=6168&link=0"
         BRANCH_IDs=$(curl -s "$BRANCH_LIST" -H 'User-Agent: Mozilla/5.0' --compressed | grep -o 'div_[0-9]\+' | sed 's/div_//')
@@ -53,7 +61,9 @@ while true; do
 
                         # pobiera stronę z planem dla danego ID
                         PLAN_URL="https://plany.ubb.edu.pl/plan.php?type=10&id=${tid}&winW=1920&winH=1080&loadBG=000000"
+                        SEC_PLAN_URL="https://plany.ubb.edu.pl/plan.php?type=10&id=${tid}&w=${WEEK}&bw=0&winW=1475&winH=731&loadBG=000000"
                         page=$(curl -s "$PLAN_URL" -H 'User-Agent: Mozilla/5.0' --compressed)
+                        sec_page=$(curl -s "$SEC_PLAN_URL" -H 'User-Agent: Mozilla/5.0' --compressed)
 
 
                         # pobiera nazwę nauczyciela dla danego ID
@@ -64,6 +74,7 @@ while true; do
 
                         # rozbicie strony na bloki, które zawierają tylko jakieś przedmioty
                         blocks=$(echo "$page" | tr '\n' ' ' | sed 's/<\/div>/<\/div>\n/g' | grep '<div id="course_')
+                        blocks+=$'\n'$(echo "$sec_page" | tr '\n' ' ' | sed 's/<\/div>/<\/div>\n/g' | grep '<div id="course_')
 
                         # wyciągamy z bloków nazwę przedmiotu oraz kierunek i zapisujemy razem z nazwą nauczyciela do pliku temp
                         echo "$blocks" | while IFS= read -r block; do
@@ -72,6 +83,21 @@ while true; do
                                 course_type=$(echo "$course_info" | cut -d',' -f2)
 
                                 major=$(echo "$block" | sed -n 's/.*<a href[^>]*>\([^/<]*\)\/.*/\1/p')
+                                if [ -n "$major" ]; then
+                                  if [[ "$block" =~ /NZ/ ]]; then
+                                    major="$major NZ"
+                                    elif [[ "$block" =~ /NW/ ]]; then
+                                      major="$major NW"
+                                    else
+                                      major="$major S"
+                                  fi
+
+                                  echo "$block"
+                                  echo "$major"
+                                fi
+
+
+
                                 if [ -n "$course_info" ] && [ -n "$major" ]; then
                                         course_name=$(echo "$legend" | perl -lne "my \$code = quotemeta(\"$course_code\"); print \$1 if /<strong>\$code<\/strong>\\s*-\\s*(.+?)(?:,|<)/")
                                         course_name="${course_name:-$course_code}"
