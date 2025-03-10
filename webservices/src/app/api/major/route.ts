@@ -3,11 +3,12 @@ import {readCSV} from "@/utils/csvReader";
 import {removeDuplicates} from "@/utils/removeDuplicates";
 import {PlanData} from "@/typings";
 import {NextResponse} from "next/server";
+import {filePath} from "../../../../config";
 
 export async function GET() {
     try {
         console.log(`${new Date().toLocaleDateString()} : Requested data from major-api`);
-        const csvFilePath = path.join('/data/', 'dane.csv');
+        const csvFilePath = path.join(filePath.csv);
         const data = await readCSV(csvFilePath);
 
         const uniqMajors= Array.from(new Set(removeDuplicates<PlanData>(data, 'Major').map(item => item.Major)));

@@ -105,7 +105,7 @@ while true; do
         done
 
         # usuwanie duplikatów
-        echo "Major,Type,Subject,Type,Teacher" > "$OUTPUT_FILE"
+        echo "Major,TypeOfStudies,Subject,Type,Teacher" > "$OUTPUT_FILE"
         sort -u "$TEMP_FILE" >> "$OUTPUT_FILE"
         rm "$TEMP_FILE"
 

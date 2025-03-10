@@ -76,16 +76,16 @@ Returns a list of unique majors.
 
 Returns a list of unique subjects for a specified major.
 
-**Query Parameter:** `major` (required)
+**Query Parameter:** `major`, `type-of-studies` (required)
 
-**Example:** `/api/subject-from-major?major=CS`
+**Example:** `/api/subject-from-major?major=CS&type-of-studies=Full-time`
 
 **Response:**
 ```yaml
 ["Programming", "Data Structure", "AI"]
 ```
 
-> **Note:** This method will return an error if no major is specified.
+> **Note:** This method will return an error if no major or no type of studies is specified.
 
 ### GET /api/sylabus
 
