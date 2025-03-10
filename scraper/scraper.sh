@@ -84,11 +84,11 @@ while true; do
                                 major=$(echo "$block" | sed -n 's/.*<a href[^>]*>\([^/<]*\)\/.*/\1/p')
                                 if [ -n "$major" ]; then
                                   if [[ "$block" =~ /NZ/ ]]; then
-                                    major="$major NZ"
+                                    type="Zaoczne"
                                     elif [[ "$block" =~ /NW/ ]]; then
-                                      major="$major NW"
+                                      type="Wieczorowe"
                                     else
-                                      major="$major S"
+                                      type="Stacjonarne"
                                   fi
                                 fi
 
@@ -98,15 +98,14 @@ while true; do
                                         course_name=$(echo "$legend" | perl -lne "my \$code = quotemeta(\"$course_code\"); print \$1 if /<strong>\$code<\/strong>\\s*-\\s*(.+?)(?:,|<)/")
                                         course_name="${course_name:-$course_code}"
                                         
-                                        #echo "$major,$course_name,$course_type,$teacher_name"
-                                        echo "$major,$course_name,$course_type,$teacher_name" >> "$TEMP_FILE"
+                                        echo "$major,$type,$course_name,$course_type,$teacher_name" >> "$TEMP_FILE"
                                 fi
                         done
                 done
         done
 
         # usuwanie duplikatów
-        echo "Major,Subject,Type,Teacher" > "$OUTPUT_FILE"
+        echo "Major,Type,Subject,Type,Teacher" > "$OUTPUT_FILE"
         sort -u "$TEMP_FILE" >> "$OUTPUT_FILE"
         rm "$TEMP_FILE"
 
