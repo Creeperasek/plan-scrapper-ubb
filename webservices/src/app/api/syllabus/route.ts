@@ -12,13 +12,28 @@ export async function GET(request: NextRequest) {
 
         const selectedMajor = searchParams.get('major');
         const selectedSubject = searchParams.get('subject');
+        const selectedMode = searchParams.get('type-of-studies');
+
 
         data = data.filter(item =>
             (!selectedMajor || item.Major === selectedMajor) &&
-            (!selectedSubject || item.Subject === selectedSubject)
+            (!selectedSubject || item.Subject === selectedSubject) &&
+            (!selectedMode || item.TypeOfStudies === selectedMode)
         ).sort((a, b) => b.Type.localeCompare(a.Type));
 
-        return NextResponse.json(data);
+        const uniqueTeachers = new Map();
+ 
+        data.forEach((entry) => {
+            if (!uniqueTeachers.has(entry.Teacher)) {
+              uniqueTeachers.set(entry.Teacher, entry);
+            } else if (entry.Type === 'wyk') {
+              uniqueTeachers.set(entry.Teacher, entry);
+            }
+          });
+          
+        const dataNoDuplicates = Array.from(uniqueTeachers.values());
+
+        return NextResponse.json(dataNoDuplicates);
 
     } catch (error) {
         console.error('Error in syllabus-api:', error);
