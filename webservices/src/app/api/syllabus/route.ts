@@ -18,19 +18,7 @@ export async function GET(request: NextRequest) {
             (!selectedSubject || item.Subject === selectedSubject)
         ).sort((a, b) => b.Type.localeCompare(a.Type));
 
-        const uniqueTeachers = new Map();
-
-        data.forEach((entry) => {
-            if (!uniqueTeachers.has(entry.Teacher)) {
-              uniqueTeachers.set(entry.Teacher, entry);
-            } else if (entry.Type === 'wyk') {
-              uniqueTeachers.set(entry.Teacher, entry);
-            }
-          });
-          
-          const dataNoDuplicates = Array.from(uniqueTeachers.values());
-
-        return NextResponse.json(dataNoDuplicates);
+        return NextResponse.json(data);
 
     } catch (error) {
         console.error('Error in syllabus-api:', error);

@@ -2,6 +2,7 @@ import {NextRequest, NextResponse} from "next/server";
 import path from "path";
 import {readCSV} from "@/utils/csvReader";
 
+
 export async function GET(request: NextRequest) {
     try {
         console.log(`${new Date().toLocaleDateString()} : Requested data from subject-from-major-api`);
@@ -11,6 +12,7 @@ export async function GET(request: NextRequest) {
 
         const searchParams = request.nextUrl.searchParams;
         const searchTerm = searchParams.get('major');
+        const searchType = searchParams.get('TypeOfStudies');
 
         console.log("Serching for: ", searchTerm)
 
@@ -24,6 +26,7 @@ export async function GET(request: NextRequest) {
         const subjects = Array.from(new Set(
             data
                 .filter(item => item.Major.toLowerCase() === searchTerm.toLowerCase())
+                .filter(item => item.TypeOfStudies === searchType.toLowerCase())
                 .map(item => item.Subject)
         ));
 
